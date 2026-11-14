@@ -10,7 +10,6 @@ jobs:
   cypress-run:
     runs-on: ubuntu-latest
 
-    # Adicionamos um container MySQL rodando em segundo plano no GitHub
     services:
       mysql:
         image: mysql:8.0
@@ -39,7 +38,7 @@ jobs:
         run: |
           python -c "
           import mysql.connector
-          conn = mysql.connector.connect(host='localhost', user='root', password='rootpassword', database='estoque')
+          conn = mysql.connector.connect(host='127.0.0.1', user='root', password='rootpassword', database='estoque')
           cursor = conn.cursor()
           cursor.execute('''CREATE TABLE categoria (id INT NOT NULL AUTO_INCREMENT, nome VARCHAR(60) NOT NULL, CONSTRAINT pk_categoria PRIMARY KEY (id), CONSTRAINT uq_categoria_nome UNIQUE (nome)) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;''')
           cursor.execute('''CREATE TABLE produto (id INT NOT NULL AUTO_INCREMENT, sku VARCHAR(20) NOT NULL, nome VARCHAR(120) NOT NULL, preco DECIMAL(10, 2) NOT NULL, quantidade INT NOT NULL DEFAULT 0, categoria_id INT NOT NULL, criado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, CONSTRAINT pk_produto PRIMARY KEY (id), CONSTRAINT uq_produto_sku UNIQUE (sku), CONSTRAINT ck_produto_preco CHECK (preco >= 0), CONSTRAINT ck_produto_quantidade CHECK (quantidade >= 0), CONSTRAINT fk_produto_categoria FOREIGN KEY (categoria_id) REFERENCES categoria (id) ON DELETE RESTRICT) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;''')
@@ -58,5 +57,6 @@ jobs:
         with:
           start: python app.py
           wait-on: 'http://127.0.0.1:5000'
+          wait-on-timeout: 120
           browser: electron
           install: false
