@@ -47,4 +47,4 @@ jobs:
         run: |
           python app.py &
           sleep 5
-          npx cypress@13 run --config baseUrl=http://127.0.0.1:5000
+          npx cypress run --config baseUrl=http://127.0.0.1:5000
