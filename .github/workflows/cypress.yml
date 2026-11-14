@@ -29,3 +29,4 @@ jobs:
           start: python app.py
           wait-on: 'http://127.0.0.1:5000'
           browser: electron
+          install: false  # <-- ADICIONE ESTA LINHA AQUI
