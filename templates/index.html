@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Controle de Estoque</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 2rem; }
+        .box { margin-bottom: 2rem; padding: 1rem; border: 1px solid #ccc; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        th, td { border: 1px solid #ccc; padding: 0.5rem; text-align: left; }
+        .msg { font-weight: bold; margin-bottom: 1rem; }
+    </style>
+</head>
+<body>
+
+    <h1>Controle de Estoque</h1>
+    <div id="msg" class="msg" data-testid="feedback-alert"></div>
+
+    <!-- Cadastro de Categoria -->
+    <div class="box">
+        <h2>Nova Categoria</h2>
+        <form id="form-categoria">
+            <label>Nome: <input type="text" id="cat-nome" required data-testid="input-categoria-nome"></label>
+            <button type="submit" data-testid="btn-salvar-categoria">Salvar Categoria</button>
+        </form>
+    </div>
+
+    <!-- Cadastro de Produto -->
+    <div class="box">
+        <h2>Novo Produto</h2>
+        <form id="form-produto">
+            <p><label>SKU: <input type="text" id="prod-sku" required data-testid="input-produto-sku"></label></p>
+            <p><label>Nome: <input type="text" id="prod-nome" required data-testid="input-produto-nome"></label></p>
+            <p><label>Preço: <input type="number" step="0.01" id="prod-preco" required data-testid="input-produto-preco"></label></p>
+            <p><label>Quantidade: <input type="number" id="prod-qtd" value="0" required data-testid="input-produto-quantidade"></label></p>
+            <p><label>Categoria: 
+                <select id="prod-categoria" required data-testid="select-produto-categoria">
+                    <option value="">Selecione...</option>
+                </select>
+            </label></p>
+            <button type="submit" data-testid="btn-salvar-produto">Salvar Produto</button>
+        </form>
+    </div>
+
+    <!-- Tabela de Produtos -->
+    <div class="box">
+        <h2>Produtos Cadastrados</h2>
+        <table data-testid="tabela-produtos">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>SKU</th>
+                    <th>Nome</th>
+                    <th>Preço</th>
+                    <th>Qtd</th>
+                </tr>
+            </thead>
+            <tbody id="lista-produtos">
+                <tr><td colspan="5">Nenhum produto cadastrado.</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        const msg = document.getElementById('msg');
+        const selectCat = document.getElementById('prod-categoria');
+        const listaProd = document.getElementById('lista-produtos');
+
+        async function carregar() {
+            // Carregar Categorias
+            const resCat = await fetch('/api/categorias');
+            const categorias = await resCat.json();
+            selectCat.innerHTML = '<option value="">Selecione...</option>';
+            categorias.forEach(c => {
+                selectCat.innerHTML += `<option value="${c.id}">${c.nome}</option>`;
+            });
+
+            // Carregar Produtos
+            const resProd = await fetch('/api/produtos');
+            const produtos = await resProd.json();
+            if (produtos.length > 0) {
+                listaProd.innerHTML = '';
+                produtos.forEach(p => {
+                    listaProd.innerHTML += `<tr><td>${p.id}</td><td>${p.sku}</td><td>${p.nome}</td><td>R$ ${p.preco}</td><td>${p.quantidade}</td></tr>`;
+                });
+            }
+        }
+
+        document.getElementById('form-categoria').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const nome = document.getElementById('cat-nome').value;
+            const res = await fetch('/api/categorias', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nome })
+            });
+            if (res.ok) {
+                msg.style.color = 'green';
+                msg.textContent = 'Categoria cadastrada com sucesso!';
+                document.getElementById('cat-nome').value = '';
+                carregar();
+            } else {
+                msg.style.color = 'red';
+                msg.textContent = 'Erro ao cadastrar categoria.';
+            }
+        });
+
+        document.getElementById('form-produto').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const produto = {
+                sku: document.getElementById('prod-sku').value,
+                nome: document.getElementById('prod-nome').value,
+                preco: document.getElementById('prod-preco').value,
+                quantidade: document.getElementById('prod-qtd').value,
+                categoria_id: selectCat.value
+            };
+            const res = await fetch('/api/produtos', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(produto)
+            });
+            if (res.ok) {
+                msg.style.color = 'green';
+                msg.textContent = 'Produto cadastrado com sucesso!';
+                e.target.reset();
+                carregar();
+            } else {
+                msg.style.color = 'red';
+                msg.textContent = 'Erro ao cadastrar produto.';
+            }
+        });
+
+        carregar();
+    </script>
+</body>
+</html>
