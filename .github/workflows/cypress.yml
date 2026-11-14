@@ -38,13 +38,16 @@ jobs:
         run: |
           mysql -h 127.0.0.1 -u root -prootpassword estoque < schema.sql
 
-      - name: Testar Inicialização do Servidor Flask
+      - name: Executar Testes Cypress no GitHub
+        uses: cypress-io/github-action@v6
         env:
           DB_HOST: 127.0.0.1
           DB_NAME: estoque
           DB_USER: root
           DB_PASSWORD: rootpassword
-        run: |
-          python app.py &
-          sleep 5
-          curl http://127.0.0.1:5000
+        with:
+          start: python app.py
+          wait-on: 'http://127.0.0.1:5000'
+          wait-on-timeout: 120
+          browser: electron
+          install: false
