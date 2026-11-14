@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, jsonify
+import os
 import mysql.connector
 from mysql.connector import Error
 
@@ -8,10 +9,10 @@ app = Flask(__name__)
 def get_db_connection():
     try:
         connection = mysql.connector.connect(
-            host='localhost',
-            database='estoque',
-            user='root',
-            password='Slsql#0306'  # <-- Coloque sua senha do MySQL Workbench aqui
+            host=os.getenv('DB_HOST','localhost'),
+            database=os.getenv ('DB_NAME','estoque'),
+            user=os.getenv('DN_USER', 'root'),
+            password=os.getenv('DB_PASSWORD', 'Slsql#0306')  # <-- Coloque sua senha do MySQL Workbench aqui
         )
         return connection
     except Error as e:
