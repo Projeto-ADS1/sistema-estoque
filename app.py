@@ -11,7 +11,7 @@ def get_db_connection():
         connection = mysql.connector.connect(
             host=os.getenv('DB_HOST','localhost'),
             database=os.getenv ('DB_NAME','estoque'),
-            user=os.getenv('DN_USER', 'root'),
+            user=os.getenv('DB_USER', 'root'),
             password=os.getenv('DB_PASSWORD', 'Slsql#0306')  # <-- Coloque sua senha do MySQL Workbench aqui
         )
         return connection
