@@ -5,14 +5,14 @@ from mysql.connector import Error
 
 app = Flask(__name__)
 
-# Configuração da Conexão com o MySQL Workbench
+# Configuração da Conexão com o MySQL Workbench / GitHub Actions
 def get_db_connection():
     try:
         connection = mysql.connector.connect(
-            host=os.getenv('DB_HOST','localhost'),
-            database=os.getenv ('DB_NAME','estoque'),
+            host=os.getenv('DB_HOST', 'localhost'),
+            database=os.getenv('DB_NAME', 'estoque'),
             user=os.getenv('DB_USER', 'root'),
-            password=os.getenv('DB_PASSWORD', 'Slsql#0306')  # <-- Coloque sua senha do MySQL Workbench aqui
+            password=os.getenv('DB_PASSWORD', 'Slsql#0306')  # Sua senha local do MySQL Workbench
         )
         return connection
     except Error as e:
