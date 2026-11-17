@@ -12,7 +12,7 @@ def get_db_connection():
             host=os.getenv('DB_HOST', 'localhost'),
             database=os.getenv('DB_NAME', 'estoque'),
             user=os.getenv('DB_USER', 'root'),
-            password=os.getenv('DB_PASSWORD', '******')  # Sua senha local do MySQL Workbench
+            password=os.getenv('DB_PASSWORD', 'Slsql#0306')  # Sua senha local do MySQL Workbench
         )
         return connection
     except Error as e:
