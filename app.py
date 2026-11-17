@@ -12,11 +12,11 @@ def get_db_connection():
             host=os.getenv('DB_HOST', 'localhost'),
             database=os.getenv('DB_NAME', 'estoque'),
             user=os.getenv('DB_USER', 'root'),
-            password=os.getenv('DB_PASSWORD', 'Slsql#0306')  # Sua senha local do MySQL Workbench
+            password=os.getenv('DB_PASSWORD', 'Slsql#0306')
         )
         return connection
     except Error as e:
-        print(f"Erro ao conectar ao MySQL: {e}")
+        print(f"=== ERRO DE CONEXAO MYSQL: {e} ===")
         return None
 
 @app.route('/')
@@ -41,6 +41,9 @@ def gerenciar_categorias():
 
     if request.method == 'POST':
         dados = request.get_json()
+        if not dados:
+            return jsonify({'erro': 'Dados inválidos ou ausentes'}), 400
+        
         nome = dados.get('nome')
         try:
             cursor.execute("INSERT INTO categoria (nome) VALUES (%s)", (nome,))
@@ -48,7 +51,8 @@ def gerenciar_categorias():
             cat_id = cursor.lastrowid
             return jsonify({'id': cat_id, 'nome': nome}), 201
         except mysql.connector.Error as err:
-            return jsonify({'erro': str(err)}), 400
+            print(f"=== ERRO MYSQL AO CADASTRAR CATEGORIA: {err} ===")
+            return jsonify({'erro': f"Erro no Banco: {err.msg}"}), 400
         finally:
             cursor.close()
             conn.close()
@@ -71,10 +75,13 @@ def gerenciar_produtos():
 
     if request.method == 'POST':
         dados = request.get_json()
+        if not dados:
+            return jsonify({'erro': 'Dados inválidos ou ausentes'}), 400
+            
         try:
             cursor.execute(
                 """INSERT INTO produto (sku, nome, preco, quantidade, categoria_id) 
-                   VALUES (%s, %s, %s, %s, %s)""",
+                    VALUES (%s, %s, %s, %s, %s)""",
                 (dados.get('sku'), dados.get('nome'), dados.get('preco'), 
                  dados.get('quantidade'), dados.get('categoria_id'))
             )
@@ -82,10 +89,11 @@ def gerenciar_produtos():
             prod_id = cursor.lastrowid
             return jsonify({'id': prod_id, **dados}), 201
         except mysql.connector.Error as err:
-            return jsonify({'erro': str(err)}), 400
+            print(f"=== ERRO MYSQL AO CADASTRAR PRODUTO: {err} ===")
+            return jsonify({'erro': f"Erro no Banco: {err.msg}"}), 400
         finally:
             cursor.close()
             conn.close()
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=False)
+    app.run(host='0.0.0.0', port=5000, debug=True)
